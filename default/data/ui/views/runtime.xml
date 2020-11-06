@@ -1,5 +1,5 @@
 <form>
-  <label>Windows WEC App - runtime</label>
+  <label>Subscriptions runtime stats</label>
   <fieldset submitButton="false">
     <input type="dropdown" token="token_host">
       <label>Host</label>

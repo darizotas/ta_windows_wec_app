@@ -15,3 +15,7 @@ The **Overview** dashboard requires the installation of the visualization [Sanke
 ## Configuration
 
 The dashboards use the macro *windows_wec_default_index* to provide the index from where to search.
+
+## Credits
+
+- [Event Log icon](https://icons8.com/icons/set/event-log) icon by [Icons8](https://icons8.com)

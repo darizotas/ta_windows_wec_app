@@ -15,3 +15,7 @@ Configuration
 ============
 
 The dashboards use the macro *windows_wec_default_index* to provide the index from where to search.
+
+Credits
+============
+- Event Log icon icon by Icons8 (https://icons8.com)

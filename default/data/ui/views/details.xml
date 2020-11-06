@@ -1,5 +1,5 @@
 <form>
-  <label>Windows WEC App - details</label>
+  <label>Subscriptions details</label>
   <fieldset submitButton="false">
     <input type="dropdown" token="token_host">
       <label>Host</label>

@@ -1,5 +1,5 @@
 <dashboard>
-  <label>Windows WEC App - overview</label>
+  <label>Overview</label>
   <row>
     <panel>
       <viz type="sankey_diagram_app.sankey_diagram">
