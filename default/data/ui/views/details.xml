@@ -1,0 +1,71 @@
+<form>
+  <label>Windows WEC App - details</label>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="token_host">
+      <label>Host</label>
+      <fieldForLabel>host</fieldForLabel>
+      <fieldForValue>host</fieldForValue>
+      <search>
+        <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:details"
+| dedup host
+| sort host
+| table host</query>
+        <earliest>-60m@m</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <title>Current subscription status</title>
+        <search>
+          <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:details" host=$token_host$ 
+| eventstats max(_time) as maxtime 
+| where _time = maxtime 
+| dedup Subscription 
+| eval DeliveryMaxLatencyTime=DeliveryMaxLatencyTime/1000, HeartbeatInterval=HeartbeatInterval/1000 
+| rename DeliveryMaxLatencyTime as DeliveryMaxLatencyTimeinSecs, HeartbeatInterval as HeartbeatIntervalInSecs 
+| table Subscription Enabled ConfigurationMode DeliveryMode DeliveryMaxItems DeliveryMaxLatencyTimeinSecs HeartbeatIntervalInSecs</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Current log files status</title>
+        <search>
+          <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:details" host=$token_host$ 
+| eventstats max(_time) as maxtime 
+| where _time = maxtime 
+| dedup Subscription 
+| eval LogSize=LogSize/1024/1024 
+| rename LogSize as LogSizeInGB 
+| table Subscription LogName TotalEvents LogSizeInGB</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Events per second for the last 24h</title>
+        <search>
+          <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:details" host=$token_host$ 
+| timechart minspan=1h avg(EventPerSecond) by Subscription</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+</form>

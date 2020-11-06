@@ -1,0 +1,232 @@
+<form>
+  <label>Windows WEC App - runtime</label>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="token_host">
+      <label>Host</label>
+      <fieldForLabel>host</fieldForLabel>
+      <fieldForValue>host</fieldForValue>
+      <search>
+        <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:runtime" 
+| dedup host 
+| sort host 
+| table host</query>
+        <earliest>-60m@m</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input type="dropdown" token="token_subscription">
+      <label>Subscription</label>
+      <fieldForLabel>Subscription</fieldForLabel>
+      <fieldForValue>Subscription</fieldForValue>
+      <search>
+        <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:runtime" host=$token_host$ 
+| dedup Subscription 
+| sort Subscription 
+| table Subscription</query>
+        <earliest>-60m@m</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+            <h1>
+                Runtime details
+            </h1>
+        </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+            <h2>
+                Summary
+            </h2>
+        </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <title>Current runtime status</title>
+        <search>
+          <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:runtime" host=$token_host$ Subscription=$token_subscription$ 
+| eventstats max(_time) as maxtime 
+| where _time = maxtime 
+| dedup RunTimeStatus 
+| table RunTimeStatus</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <table>
+        <title>Errors in the last 24h</title>
+        <search>
+          <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:runtime" host=$token_host$ Subscription=$token_subscription$ 
+| dedup LastError | fillnull value="-"
+| table LastError ErrorMessage ErrorTime</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+            <h2>
+                Healthy Event Sources
+            </h2>
+        </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <title>Total event sources with 1h delta</title>
+        <search>
+          <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:runtime" host=$token_host$ Subscription=$token_subscription$
+| spath output=computername EventSource{}.ComputerName 
+| timechart minspan=1h dc(computername)</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Active event sources with 1h delta</title>
+        <search>
+          <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:runtime" host=$token_host$ Subscription=$token_subscription$
+| spath output=computername EventSource{}.ComputerName 
+| spath output=runtimestatus EventSource{}.RunTimeStatus 
+| eval data=mvzip(computername,runtimestatus) 
+| mvexpand data 
+| eval data=split(data,",") 
+| eval computername=mvindex(data,0) 
+| eval runtimestatus=mvindex(data,1) 
+| search runtimestatus=Active 
+| timechart minspan=1h dc(computername)</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Active vs inactive event sources for last 24h</title>
+        <search>
+          <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:runtime" host=$token_host$ Subscription=$token_subscription$
+| spath output=computername EventSource{}.ComputerName 
+| spath output=runtimestatus EventSource{}.RunTimeStatus 
+| eval data=mvzip(computername,runtimestatus) 
+| mvexpand data 
+| eval data=split(data,",") 
+| eval computername=mvindex(data,0) 
+| eval runtimestatus=mvindex(data,1) 
+| timechart minspan=1h dc(computername) by runtimestatus</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+            <h2>
+                Unhealthy Event Sources
+            </h2>
+        </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <title>Event sources that faced an error in the last 24h</title>
+        <search>
+          <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:runtime" host=$token_host$ Subscription=$token_subscription$ 
+| spath output=computername EventSource{}.ComputerName 
+| spath output=lasterror EventSource{}.LastError 
+| search lasterror!=0 
+| timechart minspan=1h dc(computername)</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Event sources did not send the heartbeat for the last 30 days</title>
+        <search>
+          <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:runtime" host=$token_host$ Subscription=$token_subscription$ 
+| eventstats max(_time) as maxtime 
+| where _time = maxtime 
+| spath output=computername EventSource{}.ComputerName 
+| spath output=lastheartbeattime EventSource{}.LastHeartbeatTime 
+| eval data=mvzip(computername,lastheartbeattime) 
+| mvexpand data 
+| eval data=split(data,",") 
+| eval computername=mvindex(data,0) 
+| eval lastheartbeattime=mvindex(data,1) 
+| eval epochlastheartbeattime=strptime(lastheartbeattime, "%Y-%m-%dT%T.%3N") 
+| eval epochprunetimespan=relative_time(now(), "-59d@d" ) 
+| eval epochwarntimespan=relative_time(now(), "-29d@d" ) 
+| where epochlastheartbeattime &lt; epochwarntimespan AND epochlastheartbeattime &gt; epochprunetimespan 
+| stats dc(computername) as "device count"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="rangeValues">[200,300,400]</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Event sources did not send the heartbeat for the last 60 days</title>
+        <search>
+          <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:runtime" host=$token_host$ Subscription=$token_subscription$ 
+| eventstats max(_time) as maxtime 
+| where _time = maxtime 
+| spath output=computername EventSource{}.ComputerName 
+| spath output=lastheartbeattime EventSource{}.LastHeartbeatTime 
+| eval data=mvzip(computername,lastheartbeattime) 
+| mvexpand data 
+| eval data=split(data,",") 
+| eval computername=mvindex(data,0) 
+| eval lastheartbeattime=mvindex(data,1) 
+| eval lastheartbeattime=if(lastheartbeattime=="null", strftime(relative_time(now(),"-1y"),"%Y-%m-%dT%T.%3N"), lastheartbeattime) 
+| eval epochlastheartbeattime=strptime(lastheartbeattime, "%Y-%m-%dT%T.%3N") 
+| eval epochprunetimespan=relative_time(now(), "-59d@d" ) 
+| where epochlastheartbeattime &lt; epochprunetimespan 
+| stats dc(computername) as "device count"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0xf1813f","0xdc4e41"]</option>
+        <option name="rangeValues">[0,100]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="useColors">1</option>
+      </single>
+    </panel>
+  </row>
+</form>

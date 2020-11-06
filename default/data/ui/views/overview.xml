@@ -1,0 +1,16 @@
+<dashboard>
+  <label>Windows WEC App - overview</label>
+  <row>
+    <panel>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:details"
+| stats dc(Subscription) as dcSubscription by host, Subscription</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </viz>
+    </panel>
+  </row>
+</dashboard>
