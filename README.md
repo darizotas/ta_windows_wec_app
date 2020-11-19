@@ -1,12 +1,15 @@
-# TA-windows-wec add-on for Splunk
+# TA-windows-wec Splunk App
 
 This App for Splunk provides some dashboards for Windows WEC telemetry data retrieved using the [Windows WEC Add-On](https://splunkbase.splunk.com/app/5007/)
 
 Dashboards:
 
 - **Overview** shows the relationship between hosts (WEC servers) and the configured subscriptions.
+![Overview dashboard](images/subscription-overview.png)
 - **Details** provides the details of the subscriptions configured in a host (WEC server).
+![Subscription details dashboard](images/subscription-details.png)
 - **Runtime** provides the runtime status of a given subscription configured in a host (WEC server).
+![Subscription runtime stats dashboard](images/subscription-runtime.png)
 
 ## Requirements
 
@@ -14,7 +17,7 @@ The **Overview** dashboard requires the installation of the visualization [Sanke
 
 ## Configuration
 
-The dashboards use the macro *windows_wec_default_index* to provide the index from where to search.
+The dashboards use the macro *windows_wec_default_index* to provide the index from where to search. By default, it uses _windows*_. Change the index name, if needed.
 
 ## Credits
 
