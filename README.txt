@@ -14,7 +14,7 @@ The **Overview** dashboard requires the installation of the visualization Sankey
 Configuration
 ============
 
-The dashboards use the macro *windows_wec_default_index* to provide the index from where to search.
+The dashboards use the macro *windows_wec_default_index* to provide the index from where to search. By default, it uses windows*. Change the index name, if needed.
 
 Credits
 ============
