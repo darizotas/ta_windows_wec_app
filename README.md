@@ -1,4 +1,4 @@
-# TA-windows-wec Splunk App
+# TA_windows_wec_app Splunk App
 
 This App for Splunk provides some dashboards for Windows WEC telemetry data retrieved using the [Windows WEC Add-On](https://splunkbase.splunk.com/app/5007/)
 
