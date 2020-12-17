@@ -10,6 +10,8 @@ Dashboards:
 ![Subscription details dashboard](images/subscription-details.png)
 - **Runtime** provides the runtime status of a given subscription configured in a host (WEC server).
 ![Subscription runtime stats dashboard](images/subscription-runtime.png)
+- **Registry** provides the status of the registry pruning of a given subscription configured in a host (WEC server).
+![Subscription runtime stats dashboard](images/subscription-registry.png)
 
 ## Requirements
 

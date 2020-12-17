@@ -2,5 +2,6 @@
     <view name="overview" default='true' />
     <view name="details" />
     <view name="runtime" />
+    <view name="registry" />
     <view name="search" />
 </nav>

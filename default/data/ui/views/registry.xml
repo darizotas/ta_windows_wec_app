@@ -1,0 +1,121 @@
+<form>
+  <label>Subscription registry pruning</label>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="token_host">
+      <label>Host</label>
+      <fieldForLabel>host</fieldForLabel>
+      <fieldForValue>host</fieldForValue>
+      <search>
+        <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:registry" 
+| dedup host 
+| sort host 
+| table host</query>
+        <earliest>@d</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input type="dropdown" token="token_subscription">
+      <label>Subscription</label>
+      <fieldForLabel>Subscription</fieldForLabel>
+      <fieldForValue>Subscription</fieldForValue>
+      <search>
+        <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:registry" host=$token_host$ 
+| dedup Subscription 
+| sort Subscription 
+| table Subscription</query>
+        <earliest>@d</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+            <h1>
+                Registry prunning details
+            </h1>
+        </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+            <h2>
+                Summary
+            </h2>
+        </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <title>Current registry pruning status</title>
+        <search>
+          <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:registry" host=$token_host$ Subscription=$token_subscription$ 
+| eventstats max(_time) as maxtime 
+| where _time = maxtime 
+| dedup Status 
+| table Status</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+    <panel>
+      <table>
+        <title>Errors in the last 7 days</title>
+        <search>
+          <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:registry" host=$token_host$ Subscription=$token_subscription$ 
+| dedup ErrorMessage
+| table ErrorMessage ErrorTime</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+            <h2>
+                Pruned Event Sources
+            </h2>
+        </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <title>Total pruned event sources with 24h delta</title>
+        <search>
+          <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:registry" host=$token_host$ Subscription=$token_subscription$
+| spath output=computername EventSource{}.ComputerName 
+| timechart minspan=24h dc(computername)</query>
+          <earliest>-7d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </single>
+    </panel>
+    <panel>
+      <chart>
+        <title>Total pruned event sources for last 7days</title>
+        <search>
+          <query>`windows_wec_default_index` sourcetype="windows:wec:subscription:registry" host=$token_host$ Subscription=$token_subscription$
+| spath output=computername EventSource{}.ComputerName 
+| timechart minspan=24h dc(computername)</query>
+          <earliest>-7d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+</form>
